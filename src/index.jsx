@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom'
 import Dropzone from 'react-dropzone';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import AppBar from 'material-ui/AppBar';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
 import 'aws-sdk/dist/aws-sdk';
 const AWS = window.AWS;
 
@@ -10,7 +14,7 @@ const BUCKETNAME = "";
 const COGNITO_IDENTITY_POOL_ID = "";
 /* ------------------------------------- */
 
-
+// CognitoからS3クライアント生成
 function s3Client() {
   AWS.config.region = AWS_REGION;
   AWS.config.credentials = new AWS.CognitoIdentityCredentials({IdentityPoolId: COGNITO_IDENTITY_POOL_ID});
@@ -19,7 +23,19 @@ function s3Client() {
   return new AWS.S3({params: {Bucket: BUCKETNAME}});
 }
 
-class FileUpload extends React.Component {
+// カッコつけ用のヘッダー
+const Header = () => (
+  <MuiThemeProvider>
+    <AppBar
+      title="Title"
+      iconClassNameRight="muidocs-icon-navigation-expand-more"
+    />
+  </MuiThemeProvider>
+);
+
+
+// アップローダ親コンポーネント
+class Uploader extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -60,6 +76,7 @@ class FileUpload extends React.Component {
   }
 };
 
+// アップローダー子コンポーネント（ステータス表示）
 class Message extends React.Component {
   render() {
     return(
@@ -68,7 +85,19 @@ class Message extends React.Component {
   }
 }
 
+// アセンブル
+class Container extends React.Component {
+  render() {
+    return(
+      <div>
+        <Header />
+        <Uploader />
+      </div>
+    )
+  }
+}
+
 ReactDOM.render(
-  <FileUpload />,
+  <Container />,
   document.getElementById('container')
 );
